@@ -1,7 +1,7 @@
 (ns franzy.embedded.server
   (:require [franzy.embedded.configuration :as config])
   (:import (kafka.server KafkaServerStartable KafkaServer)
-           (kafka.utils SystemTime$)))
+           (org.apache.kafka.common.utils SystemTime)))
 
 (defn make-server
   "Creates an Embedded Kafka Server.
@@ -11,12 +11,14 @@
 
   Please prefer passing your own configuration unless the defaults match
   your desired usage."
-  (^KafkaServer [] (make-server nil nil))
-  (^KafkaServer [broker-config] (make-server broker-config nil))
-  (^KafkaServer [broker-config thread-name-prefix]
+  (^KafkaServer [] (make-server nil nil nil))
+  (^KafkaServer [broker-config] (make-server broker-config nil nil))
+  (^KafkaServer [broker-config thread-name-prefix] (make-server broker-config thread-name-prefix nil))
+  (^KafkaServer [broker-config thread-name-prefix metrics]
+
    (-> broker-config
        (config/make-kafka-config)
-       (KafkaServer. SystemTime$/MODULE$ thread-name-prefix))))
+       (KafkaServer. SystemTime thread-name-prefix metrics))))
 
 (defn make-startable-server
   "Creates a startable version of an Embedded Kafka Server with slightly less exposed functionality.
